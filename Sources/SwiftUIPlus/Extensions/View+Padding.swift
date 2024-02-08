@@ -41,7 +41,7 @@ public struct Multipadding: ViewModifier {
 }
 
 public extension View {
-    func padding(_ edges: Multipadding.Edge...) -> some View {
+    func multipadding(_ edges: Multipadding.Edge...) -> some View {
         modifier(Multipadding(edges: edges))
     }
 }

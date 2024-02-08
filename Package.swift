@@ -14,9 +14,18 @@ let package = Package(
             targets: ["SwiftUIPlus"]
         )
     ],
+    dependencies: [
+        .package(
+            url: "https://github.com/KOMA-Inc/SwiftUI-LazyPager",
+            branch: "master"
+        )
+    ],
     targets: [
         .target(
-            name: "SwiftUIPlus"
+            name: "SwiftUIPlus",
+            dependencies: [
+                .product(name: "LazyPager", package: "SwiftUI-LazyPager")
+            ]
         ),
         .testTarget(
             name: "SwiftUIPlusTests",
