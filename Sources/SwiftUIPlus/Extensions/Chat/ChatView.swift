@@ -9,7 +9,7 @@ public struct ChatView<
 
     public typealias HeaderViewBuilderClosure = () -> HeaderContent
     public typealias InputViewBuilderClosure = () -> InputViewContent
-    public typealias MessageBuilderClosure = (M) -> MessageContent
+    public typealias MessageBuilderClosure = (M, Bool) -> MessageContent
 
     // MARK: - Injected
 
@@ -23,7 +23,7 @@ public struct ChatView<
 
     public init(
         messages: [M],
-        @ViewBuilder messageView: @escaping (M) -> MessageContent,
+        @ViewBuilder messageView: @escaping (M, Bool) -> MessageContent,
         @ViewBuilder header: @escaping () -> HeaderContent,
         @ViewBuilder inputView: @escaping () -> InputViewContent
     ) {

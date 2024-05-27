@@ -363,8 +363,13 @@ struct UIList<MessageContent: View, M: Message>: UIViewRepresentable {
 
             let message = sections[indexPath.section].messages[indexPath.row]
 
-            let view = ChatMessageView(message: message, messageBuilder: messageBuilder)
-                .rotationEffect(Angle(degrees: 180))
+            let isLastMessage = indexPath.section == .zero && indexPath.row == .zero
+
+            let view = ChatMessageView(
+                message: message,
+                isLast: isLastMessage,
+                messageBuilder: messageBuilder
+            ).rotationEffect(Angle(degrees: 180))
             cell.configure(view: view)
 
             return cell
