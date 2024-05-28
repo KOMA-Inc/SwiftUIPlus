@@ -12,12 +12,17 @@ public extension View {
     }
 }
 
-private struct RoundedCorner: Shape {
+public struct RoundedCorner: Shape {
 
     let cornerRadius: CGFloat
     let corners: UIRectCorner
 
-    func path(in rect: CGRect) -> Path {
+    public init(cornerRadius: CGFloat, corners: UIRectCorner = .allCorners) {
+        self.cornerRadius = cornerRadius
+        self.corners = corners
+    }
+
+    public func path(in rect: CGRect) -> Path {
         let path = UIBezierPath(
             roundedRect: rect,
             byRoundingCorners: corners,
