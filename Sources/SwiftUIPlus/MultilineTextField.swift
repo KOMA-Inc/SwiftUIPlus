@@ -24,6 +24,25 @@ fileprivate struct UITextViewWrapper: UIViewRepresentable {
 
         textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
+        let toolBar = UIToolbar()
+
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+
+        let doneButton = UIButton(type: .system)
+        doneButton.setImage(
+            UIImage(systemName: "keyboard.chevron.compact.down"),
+            for: .normal
+        )
+        doneButton.addTarget(
+            context.coordinator,
+            action: #selector(Coordinator.resignActive),
+            for: .touchUpInside
+        )
+        let done = UIBarButtonItem(customView: doneButton)
+        toolBar.items = [flexibleSpace, done]
+        toolBar.sizeToFit()
+        textView.inputAccessoryView = toolBar
+
         return textView
     }
 
@@ -77,6 +96,15 @@ fileprivate struct UITextViewWrapper: UIViewRepresentable {
                 return false
             }
             return true
+        }
+
+        @objc func resignActive() {
+            UIApplication.shared.sendAction(
+                #selector(UIResponder.resignFirstResponder),
+                to: nil,
+                from: nil,
+                for: nil
+            )
         }
     }
 }
