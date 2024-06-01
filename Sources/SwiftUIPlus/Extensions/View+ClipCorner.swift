@@ -40,7 +40,7 @@ public struct RoundedCorner: Shape {
 
     public var animatableData: CGSize.AnimatableData {
         get {
-            CGSize.AnimatableData(cornerRadiusWidth / 2, cornerRadiusHeight / 2)
+            CGSize.AnimatableData(cornerRadiusWidth, cornerRadiusHeight)
         }
         set {
             cornerRadiusWidth = newValue.first
