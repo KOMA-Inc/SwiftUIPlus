@@ -4,11 +4,11 @@ public extension View {
 
     @ViewBuilder
     func clipCorner(radius: CGFloat = .zero, corners: UIRectCorner = .allCorners) -> some View {
-        clipShape(RoundedRectangle(cornerRadius: radius))
+        clipShape(RoundedCorner(cornerRadius: radius, corners: corners))
     }
 }
 
-@frozen public struct RoundedCorner: Shape {
+public struct RoundedCorner: Shape {
 
     private var cornerRadiusWidth: CGFloat
     private var cornerRadiusHeight: CGFloat
@@ -31,7 +31,7 @@ public extension View {
             ),
             byRoundingCorners: corners,
             cornerRadii: CGSize(
-                width: cornerRadiusWidth / 2,
+                width: cornerRadiusWidth,
                 height: cornerRadiusHeight
             )
         )
@@ -40,7 +40,7 @@ public extension View {
 
     public var animatableData: CGSize.AnimatableData {
         get {
-            CGSize.AnimatableData(cornerRadiusWidth, cornerRadiusHeight)
+            CGSize.AnimatableData(cornerRadiusWidth / 2, cornerRadiusHeight / 2)
         }
         set {
             cornerRadiusWidth = newValue.first
@@ -56,5 +56,4 @@ extension RoundedCorner: InsettableShape {
         shape.insetAmount = amount
         return shape
     }
-
 }
