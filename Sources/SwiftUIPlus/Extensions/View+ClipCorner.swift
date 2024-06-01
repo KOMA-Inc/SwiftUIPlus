@@ -31,8 +31,8 @@ public extension View {
             ),
             byRoundingCorners: corners,
             cornerRadii: CGSize(
-                width: cornerRadiusWidth,
-                height: cornerRadiusWidth
+                width: cornerRadiusWidth / 2,
+                height: cornerRadiusHeight
             )
         )
         return Path(path.cgPath)
