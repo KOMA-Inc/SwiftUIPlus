@@ -57,9 +57,9 @@ public struct TooltipShape: Shape {
         case .trailing:
             [.topLeft, .bottomLeft, .bottomRight]
         case .custom(let value):
-            if 0...0.1 ~= value {
+            if 0...0.09 ~= value {
                 [.topRight, .bottomLeft, .bottomRight]
-            } else if 0.9...1 ~= value {
+            } else if 0.91...1 ~= value {
                 [.topLeft, .bottomLeft, .bottomRight]
             } else {
                 .allCorners
