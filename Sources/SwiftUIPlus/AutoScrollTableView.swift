@@ -2,18 +2,19 @@ import SwiftUI
 
 public struct AutoScrollingTableView<Content: View>: UIViewRepresentable {
     let scrollSpeed: CGFloat
-    let numberOfRows: Int
-    let rowContentProvider: (Int) -> Content
+    let uniqueElements: Int
+    let viewBuilder: (Int) -> Content
 
-    public init(scrollSpeed: CGFloat, numberOfRows: Int, @ViewBuilder rowContentProvider: @escaping (Int) -> Content) {
+    public init(scrollSpeed: CGFloat, uniqueElements: Int, @ViewBuilder viewBuilder: @escaping (Int) -> Content) {
         self.scrollSpeed = scrollSpeed
-        self.numberOfRows = numberOfRows
-        self.rowContentProvider = rowContentProvider
+        self.uniqueElements = uniqueElements
+        self.viewBuilder = viewBuilder
     }
 
     public func makeUIView(context: Context) -> UITableView {
         let tableView = UITableView()
         tableView.separatorStyle = .none
+        tableView.backgroundColor = .clear
         tableView.showsVerticalScrollIndicator = false
         tableView.delegate = context.coordinator
         tableView.dataSource = context.coordinator
@@ -43,7 +44,7 @@ public struct AutoScrollingTableView<Content: View>: UIViewRepresentable {
         func scrollToCenter(of tableView: UITableView) {
             self.tableView = tableView
             let total = 10_000
-            let unique = parent.numberOfRows
+            let unique = parent.uniqueElements
             let repeats = total / unique
             let middleOccurrence = repeats / 2
             let middleIndex = middleOccurrence * unique
@@ -85,12 +86,15 @@ public struct AutoScrollingTableView<Content: View>: UIViewRepresentable {
         }
 
         public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let row = indexPath.row % parent.numberOfRows
+            let row = indexPath.row % parent.uniqueElements
             let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-            let hostingController = UIHostingController(rootView: parent.rowContentProvider(row))
+            let hostingController = UIHostingController(rootView: parent.viewBuilder(row))
+            hostingController.view.backgroundColor = .clear
             hostingController.view.translatesAutoresizingMaskIntoConstraints = false
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             cell.contentView.addSubview(hostingController.view)
+            cell.backgroundColor = .clear
+            cell.selectionStyle = .none
 
             NSLayoutConstraint.activate([
                 hostingController.view.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor),
