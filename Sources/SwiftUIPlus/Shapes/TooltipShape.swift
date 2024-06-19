@@ -1,6 +1,6 @@
 import SwiftUI
 
-private let tooltipTriangleSize = CGSize(width: 16, height: 10)
+private let tooltipTriangleSize = CGSize(width: 16, height: 8)
 
 public struct TooltipShape: Shape {
 
@@ -9,7 +9,10 @@ public struct TooltipShape: Shape {
         case center
         case trailing
         /// 0 - 1
-        case custom(CGFloat)
+        case customPercent(CGFloat)
+        case customLeadingOffset(CGFloat)
+        case customTrailingOffset(CGFloat)
+
     }
 
     private var cornerRadius: CGFloat
@@ -41,46 +44,29 @@ public struct TooltipShape: Shape {
             width / 2
         case .trailing:
             width
-        case .custom(let value):
+        case .customPercent(let value):
             width * value
+        case .customLeadingOffset(let offset):
+            offset.clamped(to: 0...width)
+        case .customTrailingOffset(let offset):
+            (width - offset).clamped(to: 0...width)
         }
 
         return offset
     }
 
-    private var roundingCorners: UIRectCorner {
-        switch trianglePosition {
-        case .leading:
-            [.topRight, .bottomLeft, .bottomRight]
-        case .center:
-                .allCorners
-        case .trailing:
-            [.topLeft, .bottomLeft, .bottomRight]
-        case .custom(let value):
-            if 0...0.09 ~= value {
-                [.topRight, .bottomLeft, .bottomRight]
-            } else if 0.91...1 ~= value {
-                [.topLeft, .bottomLeft, .bottomRight]
-            } else {
-                .allCorners
-            }
-        }
-    }
-
     public func path(in rect: CGRect) -> Path {
-
-        var path = Path()
+        let trianglePath = UIBezierPath()
 
         // Draw the triangle pointer
-        path.move(
+        trianglePath.move(
             to: CGPoint(
                 x: max(triangleCenterXPosition(in: rect), rect.minX) - triangleWidth / 2,
                 y: triangleHeight
             )
         )
-        path.addLine(to: CGPoint(x: triangleCenterXPosition(in: rect), y: 0))
-        path.addLine(to: CGPoint(x: triangleCenterXPosition(in: rect) + triangleWidth / 2, y: triangleHeight))
-        path.closeSubpath()
+        trianglePath.addLine(to: CGPoint(x: triangleCenterXPosition(in: rect), y: 0))
+        trianglePath.addLine(to: CGPoint(x: triangleCenterXPosition(in: rect) + triangleWidth / 2, y: triangleHeight))
 
         let rectPath = UIBezierPath(
             roundedRect: CGRect(
@@ -89,16 +75,47 @@ public struct TooltipShape: Shape {
                 width: rect.width,
                 height: rect.height - triangleHeight
             ),
-            byRoundingCorners: roundingCorners,
+            byRoundingCorners: roundingCorners(
+                in: rect,
+                cornerRadius: cornerRadius
+            ),
             cornerRadii: CGSize(
                 width: cornerRadius,
                 height: cornerRadius
             )
         )
 
+        var path = Path()
+
+        path.addPath(Path(trianglePath.cgPath))
         path.addPath(Path(rectPath.cgPath))
 
         return path
+    }
+
+    private func roundingCorners(
+        in rect: CGRect,
+        cornerRadius: CGFloat
+    ) -> UIRectCorner {
+        var corners: UIRectCorner = [.bottomLeft, .bottomRight]
+
+        let width = rect.width
+        let leftCorner = cornerRadius / 2
+        let rightCorner = width - (cornerRadius / 2)
+
+        let triangleCenterPosition = triangleCenterXPosition(in: rect)
+        let triangleMinX = triangleCenterPosition - triangleWidth / 2
+        let triangleMaxX = triangleCenterPosition + triangleWidth / 2
+
+        if triangleMinX >= leftCorner {
+            corners.insert(.topLeft)
+        }
+
+        if triangleMaxX <= rightCorner {
+            corners.insert(.topRight)
+        }
+
+        return corners
     }
 }
 
@@ -111,5 +128,12 @@ public extension View {
         padding(.top, tooltipTriangleSize.height)
             .background(background)
             .clipShape(TooltipShape(cornerRadius: cornerRadius, trianglePosition: trianglePosition))
+    }
+}
+
+private extension Comparable {
+
+    func clamped(to limits: ClosedRange<Self>) -> Self {
+        min(max(self, limits.lowerBound), limits.upperBound)
     }
 }
