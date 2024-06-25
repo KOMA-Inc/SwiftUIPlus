@@ -13,10 +13,10 @@ public struct ChatView<
 
     // MARK: - Injected
 
-    private let messageBuilder: MessageBuilderClosure
-    private let header: HeaderViewBuilderClosure
-    private let inputView: InputViewBuilderClosure
+    private let header: HeaderContent
+    private let inputView: InputViewContent
     private let sections: [MessageSection<M>]
+    private let messagesViews: [M.ID: MessageContent]
 
     var dateHeader: ((Date) -> AnyView)?
     var scrollToBottomView: (() -> AnyView)?
@@ -27,10 +27,13 @@ public struct ChatView<
         @ViewBuilder header: @escaping () -> HeaderContent,
         @ViewBuilder inputView: @escaping () -> InputViewContent
     ) {
-        self.sections = Self.mapMessages(messages)
-        self.messageBuilder = messageView
-        self.header = header
-        self.inputView = inputView
+        let sections = Self.mapMessages(messages)
+        self.sections = sections
+        self.header = header()
+        self.inputView = inputView()
+        self.messagesViews = messages.reduce(into: [:]) { partialResult, message in
+            partialResult[message.id] = messageView(message, message.id == sections.first?.messages.first?.id)
+        }
     }
 
     @State private var isScrolledToBottom: Bool = true
@@ -38,7 +41,7 @@ public struct ChatView<
     private var list: some View {
         UIList<MessageContent, M>(
             isScrolledToBottom: $isScrolledToBottom,
-            messageBuilder: messageBuilder,
+            messagesViews: messagesViews,
             dateHeader: dateHeader,
             sections: sections
         )
@@ -46,7 +49,7 @@ public struct ChatView<
 
     public var body: some View {
         VStack(spacing: .zero) {
-            header()
+            header
             ZStack(alignment: .bottomTrailing) {
                 list
                     .onTapGesture {
@@ -60,7 +63,7 @@ public struct ChatView<
                     }
                 }
             }
-            inputView()
+            inputView
         }
     }
 }

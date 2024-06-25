@@ -7,7 +7,7 @@ struct UIList<MessageContent: View, M: Message>: UIViewRepresentable {
     typealias MessageBuilderClosure = ChatView<EmptyView, MessageContent, EmptyView, M>.MessageBuilderClosure
 
     @Binding var isScrolledToBottom: Bool
-    let messageBuilder: MessageBuilderClosure
+    let messagesViews: [M.ID: MessageContent]
     let dateHeader: ((Date) -> AnyView)?
     let sections: [Section]
 
@@ -284,9 +284,9 @@ struct UIList<MessageContent: View, M: Message>: UIViewRepresentable {
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
+            parent: self,
             isScrolledToBottom: $isScrolledToBottom,
             isScrolledToTop: $isScrolledToTop,
-            messageBuilder: messageBuilder,
             dateHeader: dateHeader,
             sections: sections
         )
@@ -297,20 +297,20 @@ struct UIList<MessageContent: View, M: Message>: UIViewRepresentable {
         @Binding var isScrolledToBottom: Bool
         @Binding var isScrolledToTop: Bool
 
-        private let messageBuilder: MessageBuilderClosure
+        let parent: UIList
         let dateHeader: ((Date) -> AnyView)?
         var sections: [Section]
 
         init(
+            parent: UIList,
             isScrolledToBottom: Binding<Bool>,
             isScrolledToTop: Binding<Bool>,
-            messageBuilder: @escaping MessageBuilderClosure,
             dateHeader: ((Date) -> AnyView)?,
             sections: [Section]
         ) {
+            self.parent = parent
             self._isScrolledToBottom = isScrolledToBottom
             self._isScrolledToTop = isScrolledToTop
-            self.messageBuilder = messageBuilder
             self.dateHeader = dateHeader
             self.sections = sections
         }
@@ -363,12 +363,9 @@ struct UIList<MessageContent: View, M: Message>: UIViewRepresentable {
 
             let message = sections[indexPath.section].messages[indexPath.row]
 
-            let isLastMessage = indexPath.section == .zero && indexPath.row == .zero
-
             let view = ChatMessageView(
                 message: message,
-                isLast: isLastMessage,
-                messageBuilder: messageBuilder
+                content: parent.messagesViews[message.id]!
             ).rotationEffect(Angle(degrees: 180))
             cell.configure(view: view)
 
