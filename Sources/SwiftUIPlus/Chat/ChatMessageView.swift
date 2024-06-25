@@ -2,18 +2,24 @@ import SwiftUI
 
 struct ChatMessageView<Content: View, M: Message>: View {
 
-    private let id: M.ID
-    private let content: Content
+    typealias MessageBuilderClosure = ChatView<EmptyView, Content, EmptyView, M>.MessageBuilderClosure
+
+    private let message: M
+    private let isLast: Bool
+    private let messageBuilder: MessageBuilderClosure
 
     init(
         message: M,
-        content: Content
+        isLast: Bool,
+        @ViewBuilder messageBuilder: @escaping MessageBuilderClosure
     ) {
-        self.id = message.id
-        self.content = content
+        self.message = message
+        self.isLast = isLast
+        self.messageBuilder = messageBuilder
     }
 
     var body: some View {
-        content.id(id)
+        messageBuilder(message, isLast)
+            .id(message.id)
     }
 }
