@@ -37,6 +37,7 @@ public extension View {
     func toast<Toast: View>(
         isPresented: Binding<Bool>,
         location: ToastLocation,
+        onAppear: (() -> Void)? = nil,
         @ViewBuilder toast: () -> Toast
     ) -> some View {
         ZStack(alignment: location.alignment) {
@@ -54,6 +55,7 @@ public extension View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             isPresented.wrappedValue = false
                         }
+                        onAppear?()
                     }
             }
         }
