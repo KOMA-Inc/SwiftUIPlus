@@ -4,7 +4,7 @@ public enum ToastLocation {
     case top
     case bottom
 
-    var alignment: Alignment {
+    public var alignment: Alignment {
         switch self {
         case .top:
                 .top
@@ -13,7 +13,7 @@ public enum ToastLocation {
         }
     }
 
-    var edge: Edge {
+    public var edge: Edge {
         switch self {
         case .top:
                 .top
@@ -22,7 +22,7 @@ public enum ToastLocation {
         }
     }
 
-    var swipeDirection: SwipeDirection {
+    public var swipeDirection: SwipeDirection {
         switch self {
         case .top:
                 .up
