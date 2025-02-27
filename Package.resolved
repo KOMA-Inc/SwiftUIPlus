@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/KOMA-Inc/SwiftUI-LazyPager",
       "state" : {
-        "branch" : "master",
-        "revision" : "4711f8dae907b894626d75f86f54d9004feed945"
+        "revision" : "4711f8dae907b894626d75f86f54d9004feed945",
+        "version" : "1.0.0"
       }
     }
   ],

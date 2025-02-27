@@ -17,7 +17,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/KOMA-Inc/SwiftUI-LazyPager",
-            branch: "master"
+            from: "1.0.0"
         )
     ],
     targets: [
