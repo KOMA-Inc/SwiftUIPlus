@@ -4,6 +4,7 @@ import UIKit
 fileprivate struct UITextViewWrapper: UIViewRepresentable {
 
     @Environment(\.textViewFont) private var textViewFont
+    @Environment(\.multilineTextViewStyle) private var multilineTextViewStyle
 
     typealias UIViewType = UITextView
 
@@ -52,6 +53,7 @@ fileprivate struct UITextViewWrapper: UIViewRepresentable {
         if let textViewFont {
             textView.font = textViewFont
         }
+        multilineTextViewStyle.configure(textView)
 
         if textView.text != text {
             textView.text = text
@@ -115,53 +117,31 @@ public struct MultilineTextField: View {
     private var onCommit: (() -> Void)?
 
     @Binding private var text: String
-    private var internalText: Binding<String> {
-        Binding<String>(get: { text } ) {
-            text = $0
-            showingPlaceholder = $0.isEmpty
-        }
-    }
 
     @State private var dynamicHeight: CGFloat = 10
-    @State private var showingPlaceholder = false
+
+    private var showingPlaceholder: Bool {
+        text.isEmpty
+    }
 
     public init(_ placeholder: String = "", text: Binding<String>, onCommit: (() -> Void)? = nil) {
         self.placeholder = placeholder
         self.onCommit = onCommit
         self._text = text
-        self._showingPlaceholder = State<Bool>(initialValue: self.text.isEmpty)
     }
 
     public var body: some View {
-        UITextViewWrapper(text: internalText, calculatedHeight: $dynamicHeight, onDone: onCommit)
+        UITextViewWrapper(text: $text, calculatedHeight: $dynamicHeight, onDone: onCommit)
             .frame(height: dynamicHeight)
-            .overlay(placeholderView.allowsHitTesting(false), alignment: .topLeading)
+            .overlay(placeholderView.allowsHitTesting(false), alignment: .leading)
     }
 
+    @ViewBuilder
     private var placeholderView: some View {
-        Group {
-            if showingPlaceholder {
-                Text(placeholder).foregroundColor(.gray)
-                    .padding(.leading, 4)
-                    .padding(.top, 8)
-            }
+        if showingPlaceholder {
+            Text(placeholder)
+                .foregroundColor(.gray)
+                .padding(.leading, 4)
         }
-    }
-}
-
-struct TextViewFontKey: EnvironmentKey {
-    static let defaultValue: UIFont? = nil
-}
-
-public extension EnvironmentValues {
-    var textViewFont: UIFont? {
-        get { self[TextViewFontKey.self] }
-        set { self[TextViewFontKey.self] = newValue }
-    }
-}
-
-public extension View {
-    func textViewFont(_ font: UIFont?) -> some View {
-        environment(\.textViewFont, font)
     }
 }
